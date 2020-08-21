@@ -170,7 +170,7 @@
                     <div class="panel-body">
                         <form class="form-edit-add" role="form" action="{{ route('voyager.users.store') }}" method="POST" enctype="multipart/form-data" autocomplete="off">
 
-                            <input type="hidden" name="_token" value="1CrF5uCPp1MD35KMxpqgv4qzr73oE814IxAMGRti">
+                            @csrf
 
                             <div class="row">
                                 <div class="col-md-8">
