@@ -178,19 +178,22 @@
                                         <div class="panel-body">
                                             <div class="form-group">
                                                 <label for="name">Name</label>
-                                                <input type="text" class="form-control" id="name" name="name" placeholder="Name"
-                                                value="">
+                                                <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="" required maxlength="50">
                                             </div>
 
                                             <div class="form-group">
                                                 <label for="email">E-mail</label>
-                                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail"
-                                                value="">
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" value="" required>
                                             </div>
 
                                             <div class="form-group">
                                                 <label for="password">Password</label>
-                                                <input type="password" class="form-control" id="password" name="password" value="" autocomplete="new-password">
+                                                <input type="password" class="form-control" id="password" name="password" value="" autocomplete="new-password" required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="company">Company</label>
+                                                <input type="text" class="form-control" id="company" name="company" value="" placeholder="Company" required maxlength="100">
                                             </div>
 
                                             <input type="hidden" name="role_id" value="5">
