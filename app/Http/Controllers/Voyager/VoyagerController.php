@@ -5,13 +5,13 @@ namespace App\Http\Controllers\Voyager;
 use TCG\Voyager\Http\Controllers\VoyagerController as BaseVoyagerController;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Voyager\ReportsController;
 
 class VoyagerController extends BaseVoyagerController
 {
     public function index()
     {
-        $reports = new ReportsController();
-        $years = $reports->getDatesFromRange(date('Y-m-01'), date('Y-m-d'));
+        $years = $this->getDatesFromRange(date('Y-m-01'), date('Y-m-d'));
         $customer_type = \App\Customer::selectRaw('DISTINCT(customer_type)')->get();
 
         $yrs = [];
@@ -140,5 +140,24 @@ class VoyagerController extends BaseVoyagerController
         $data['company_name'] = \App\User::selectRaw('DISTINCT(company)')->where('company', '!=', null)->pluck('company');
 
         return view('vendor.voyager.index', $data);
+    }
+
+    function getDatesFromRange($start, $end) { 
+      
+        // Declare an empty array 
+        $array = array(); 
+        
+        // Use strtotime function 
+        $Variable1 = strtotime($start); 
+        $Variable2 = strtotime($end); 
+        
+        // Use for loop to store dates into array 
+        // 86400 sec = 24 hrs = 60*60*24 = 1 day 
+        for ($currentDate = $Variable1; $currentDate <= $Variable2; $currentDate += (86400)) {                                   
+            $Store = date('Y-m-d', $currentDate); 
+            $array[] = $Store; 
+        } 
+
+        return $array; 
     }
 }

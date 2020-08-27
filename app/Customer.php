@@ -8,7 +8,7 @@ use Illuminate\Support\Facades\Auth;
 class Customer extends Model
 {
     protected $table = 'customers';
-    protected $fillable = ['user_id', 'sales_rep_id'];
+    protected $fillable = ['user_id', 'sales_rep_id', 'first_name', 'last_name', 'city', 'state', 'company', 'email', 'customer_type'];
 
     public function scopeCurrentUser($query)
     {

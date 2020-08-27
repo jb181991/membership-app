@@ -242,7 +242,18 @@ class CustomerController extends \TCG\Voyager\Http\Controllers\VoyagerBaseContro
             $view = "voyager::$slug.read";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted'));
+        if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3) {
+            $orders = \App\Order::where('id', $id)->get();
+        } elseif (Auth::user()->role_id == 4) {
+            $orders = DB::table('orders')
+                        ->join('users', 'orders.sales_rep_id', '=', 'users.id')
+                        ->where('users.coach_id', Auth::user()->id)
+                        ->get();
+        } else {
+           $orders = \App\Order::where('sales_rep_id', $id)->get();
+        }
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted', 'orders'));
     }
 
     //***************************************
@@ -393,8 +404,9 @@ class CustomerController extends \TCG\Voyager\Http\Controllers\VoyagerBaseContro
         }
 
         $sales_reps = \App\User::where('role_id', 5)->get();
+        $coaches = \App\User::where('role_id', 4)->get();
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps', 'coaches'));
     }
 
     /**

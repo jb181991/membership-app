@@ -32,7 +32,8 @@
                 @include('voyager::bread.partials.actions', ['action' => $action, 'data' => null])
             @endif
         @endforeach
-        <a href="{{ url('/admin/export-customers') }}" class="btn btn-primary"><i class="voyager-download"></i> Export to PDF</a>
+        <a href="{{ url('/admin/export-customers') }}" class="btn btn-primary"><i class="voyager-cloud-download"></i> Export to PDF</a>
+        <a href="#" class="btn btn-primary" data-toggle="modal" data-target="#import_modal"><i class="voyager-upload"></i> Import</a>
         @include('voyager::multilingual.language-selector')
     </div>
 @stop
@@ -316,6 +317,48 @@
             </div><!-- /.modal-content -->
         </div><!-- /.modal-dialog -->
     </div><!-- /.modal -->
+
+    {{-- Customers Import modal --}}
+    <div class="modal modal-default fade" tabindex="-1" id="import_modal" role="dialog">
+        <div class="modal-dialog">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal" aria-label="{{ __('voyager::generic.close') }}"><span aria-hidden="true">&times;</span></button>
+                    <h5 class="modal-title">Import Customer</h5>
+                </div>
+                <div class="modal-body">
+                    <p class="card-text">Download the sample csv file <a href="{{ asset('empty.csv') }}" download>here</a>.</p>
+                    <p class="card-text"><stong>Note:</strong> Customer Type values should be: (Real Estate Agent, Real Estate Broker, Lender)</p>
+                    <form class="form-horizontal" method="POST" action="{{ url('/admin/import') }}" enctype="multipart/form-data">
+                        @csrf
+                        <div class="form-group{{ $errors->has('csv_file') ? ' has-error' : '' }}">
+                            <label for="csv_file" class="col-md-4 control-label">CSV file to import</label>
+
+                            <div class="col-md-6">
+                                <input id="csv_file" type="file" accept=".csv" class="form-control" name="csv_file" required>
+
+                                @if ($errors->has('csv_file'))
+                                    <span class="help-block">
+                                    <strong>{{ $errors->first('csv_file') }}</strong>
+                                </span>
+                                @endif
+                            </div>
+                        </div>
+
+                        
+                        <div class="form-group">
+                            <div class="col-md-8 col-md-offset-4">
+                                <button type="submit" id="btn_submit" data-loading-text="Uploading..." class="btn btn-primary">
+                                    Import Customers
+                                </button>
+                            </div>
+                        </div>
+                    </form>
+                </div>
+            </div><!-- /.modal-content -->
+        </div><!-- /.modal-dialog -->
+    </div><!-- /.modal -->
+
 @stop
 
 @section('css')
@@ -331,6 +374,16 @@
     @endif
     <script>
         $(document).ready(function () {
+            $("#btn_submit").click(function() {
+                var $btn = $(this);
+                $btn.button('loading');
+                // Then whatever you actually want to do i.e. submit form
+                // After that has finished, reset the button state using
+                setTimeout(function () {
+                    $btn.button('reset');
+                }, 3000);
+            });
+
             @if (!$dataType->server_side)
                 var table = $('#dataTable').DataTable({!! json_encode(
                     array_merge([

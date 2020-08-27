@@ -168,7 +168,7 @@
 
                 <div class="modal-body">
                     <div class="panel-body">
-                        <form class="form-edit-add" role="form" action="{{ route('voyager.users.store') }}" method="POST" enctype="multipart/form-data" autocomplete="off">
+                        <form class="form-edit-add" role="form" action="" id="form_add_sales_rep" method="POST" enctype="multipart/form-data" autocomplete="off">
 
                             @csrf
 
@@ -195,6 +195,20 @@
                                                 <label for="company">Company</label>
                                                 <input type="text" class="form-control" id="company" name="company" value="" placeholder="Company" required maxlength="100">
                                             </div>
+
+                                            @if (Auth::user()->role_id != 4)
+                                                <div class="form-group">
+                                                    <label for="">Coach</label>
+                                                    <select name="coach_id" id="coach_id" class="form-group select2">
+                                                        <option value="" disabled selected>Select Coach</option>
+                                                        @foreach ($coaches as $coach)
+                                                            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <input type="hidden" name="coach_id" value="{{ Auth::user()->id }}">
+                                            @endif
 
                                             <input type="hidden" name="role_id" value="5">
                                             <input type="hidden" name="locale" value="en">
@@ -253,6 +267,31 @@
                 if($(this).val() == "create_new") {
                     $("#add_new_rep_modal").modal('show');
                 }
+            });
+
+            $("#form_add_sales_rep").submit(function(event){
+                event.preventDefault();
+                var values = $(this).serialize();
+                $.ajax({
+                    url: "{{ route('voyager.users.store') }}",
+                    type: 'POST',
+                    data: values,
+                    success: function (result) {
+                        // console.log(data);
+                        var data = {
+                            id: result['data'].id,
+                            text: result['data'].name,
+                        };
+
+                        var newOption = new Option(data.text, data.id, false, false);
+                        $('#sales_rep_id').append(newOption).trigger('change');
+
+                        toastr.success(result['message']);
+
+                        $("#add_new_rep_modal").modal('hide');
+                        $("#form_add_sales_rep").trigger("reset");
+                    }
+                });
             });
 
             $('.toggleswitch').bootstrapToggle();

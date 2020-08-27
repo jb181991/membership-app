@@ -99,6 +99,7 @@
                                     <label for="">Sales Rep</label>
                                     <select name="sales_rep_id" id="sales_rep_id" class="form-control select2">
                                         <option value="" disabled selected>None</option>
+                                        <option value="create_new">Create New Sales Rep</option>
                                         @foreach ($sales_reps as $sales_rep)
                                             <option value="{{ $sales_rep->id }}" {{ isset($dataTypeContent->sales_rep_id) && $sales_rep->id == $dataTypeContent->sales_rep_id ? 'selected' : '' }}>{{ $sales_rep->name }}</option>
                                         @endforeach
@@ -154,6 +155,88 @@
         </div>
     </div>
     <!-- End Delete File Modal -->
+
+    <div class="modal fade modal-primary" id="add_new_rep_modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Create new Sales Rep</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="panel-body">
+                        <form class="form-edit-add" role="form" action="" id="form_add_sales_rep" method="POST" enctype="multipart/form-data" autocomplete="off">
+
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-md-8">
+                                    <div class="panel panel-bordered">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <label for="name">Name</label>
+                                                <input type="text" class="form-control" id="name" name="name" placeholder="Name" value="" required maxlength="50">
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="email">E-mail</label>
+                                                <input type="email" class="form-control" id="email" name="email" placeholder="E-mail" value="" required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="password">Password</label>
+                                                <input type="password" class="form-control" id="password" name="password" value="" autocomplete="new-password" required>
+                                            </div>
+
+                                            <div class="form-group">
+                                                <label for="company">Company</label>
+                                                <input type="text" class="form-control" id="company" name="company" value="" placeholder="Company" required maxlength="100">
+                                            </div>
+
+                                            @if (Auth::user()->role_id != 4)
+                                                <div class="form-group">
+                                                    <label for="">Coach</label>
+                                                    <select name="coach_id" id="coach_id" class="form-group select2">
+                                                        <option value="" disabled selected>Select Coach</option>
+                                                        @foreach ($coaches as $coach)
+                                                            <option value="{{ $coach->id }}">{{ $coach->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @else
+                                                <input type="hidden" name="coach_id" value="{{ Auth::user()->id }}">
+                                            @endif
+
+                                            <input type="hidden" name="role_id" value="5">
+                                            <input type="hidden" name="locale" value="en">
+                                            <input type="hidden" name="form_type" value="modal">
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="col-md-4">
+                                    <div class="panel panel panel-bordered panel-warning">
+                                        <div class="panel-body">
+                                            <div class="form-group">
+                                                <img src="http://localhost:8001/storage/users/default.png" style="width:200px; height:auto; clear:both; display:block; padding:2px; border:1px solid #ddd; margin-bottom:10px;" />
+                                                <input type="file" data-name="avatar" name="avatar">
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary pull-right save">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Create New Sales Rep Modal -->
 @stop
 
 @section('javascript')
@@ -180,6 +263,37 @@
         }
 
         $('document').ready(function () {
+            $("#sales_rep_id").on("change", function() {
+                if($(this).val() == "create_new") {
+                    $("#add_new_rep_modal").modal('show');
+                }
+            });
+
+            $("#form_add_sales_rep").submit(function(event){
+                event.preventDefault();
+                var values = $(this).serialize();
+                $.ajax({
+                    url: "{{ route('voyager.users.store') }}",
+                    type: 'POST',
+                    data: values,
+                    success: function (result) {
+                        
+                        $("#form_add_sales_rep").trigger("reset");
+
+                        var data = {
+                            id: result['data'].id,
+                            text: result['data'].name,
+                        };
+
+                        var newOption = new Option(data.text, data.id, false, false);
+                        $('#sales_rep_id').append(newOption).trigger('change');
+
+                        $("#add_new_rep_modal").modal('hide');
+                        toastr.success(result['message']);
+                    }
+                });
+            });
+
             $('.toggleswitch').bootstrapToggle();
 
             //Init datepicker for date fields if data-datepicker attribute defined

@@ -9,6 +9,30 @@
     <div class="container-fluid">
         <div class="page-content">
             <div class="row">
+                <div class="col-md-12">
+                    <div class="panel widget">
+                        <div class="panel-content">
+                            <div class="panel-body">
+                                <div class="form-group col-md-6">
+                                    <label for="">Company</label>
+                                    <select class="form-control select2" name="company" id="company">
+                                        <option value="" disabled selected>Select Company</option>
+                                        @foreach ($company_name as $company)
+                                            <option value="{{ $company }}">{{ ucwords($company) }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <label for="">Year Range</label>
+                                    <input type="text" class="form-control" name="year_range" id="year_range">
+                                </div>
+                                <div class="form-group col-md-6">
+                                    <button class="btn btn-primary" id="btn_filter">Filter</button>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
                 <div class="col-md-6">
                     <div class="panel widget">
                         <div class="panel-content">
@@ -174,6 +198,68 @@
             }
         });
 
+        $(document).ready(function(){
+
+            var start = moment().subtract(29, 'days');
+            var end = moment();
+            $('input[name="year_range"]').daterangepicker({
+                startDate: start,
+                endDate: end,
+                ranges: {
+                    'Today': [moment(), moment()],
+                    'Yesterday': [moment().subtract(1, 'days'), moment().subtract(1, 'days')],
+                    'Last 7 Days': [moment().subtract(6, 'days'), moment()],
+                    'Last 30 Days': [moment().subtract(29, 'days'), moment()],
+                    'This Month': [moment().startOf('month'), moment().endOf('month')],
+                    'Last Month': [moment().subtract(1, 'month').startOf('month'), moment().subtract(1, 'month').endOf('month')]
+                },
+                locale: {
+                    format: 'MMM DD, YYYY'
+                },
+                "showDropdowns": true,
+                "opens": 'right',
+                "linkedCalendars": false,
+                "showCustomRangeLabel": true,
+            }, function(start, end) {
+
+                var start_yr = start.format('MMM DD, YYYY');
+                var end_yr = end.format('MMM DD, YYYY');
+
+            });
+
+            $('#btn_filter').on('click', function(){
+                $.ajax({
+                    url: "{{ url('/admin/get-reports-data') }}",
+                    type: 'POST',
+                    data: {'year_range': $('input[name="year_range"]').val(), 'company': $('#company').val(),'_token': $('meta[name="csrf-token"]').attr('content')},
+                    success: function (result){
+                        $("#customer_tbl tbody").html("");
+                        $("#order_tbl tbody").html("");
+
+                        // Customer Report
+                        $("#title-customer").html(' - ' + ucwords($('#company').val()) + ' as of ' + $('input[name="year_range"]').val());
+                        removeDataset(cutomersChart);
+                        addDataset(cutomersChart, result.customers_data, result.customers_label, 'customers');
+                        cutomersChart.update();
+                        for (let i = 0; i < result.customers_tbl.length; i++) {
+                            const e = result.customers_tbl[i];
+                            $("#customer_tbl tbody").append('<tr> <td>'+e.customer_name+'</td> <td>'+e.email+'</td> <td>'+e.name+'</td> <td>'+e.customer_type+'</td> </tr>');
+                        }
+
+                        // Order Report
+                        $("#title-order").html(' - ' + ucwords($('#company').val()) + ' as of ' + $('input[name="year_range"]').val());
+                        removeDataset(orderChart);
+                        addDataset(orderChart, result.years_cnt, result.years, 'orders');
+                        orderChart.update();
+                        for (let i = 0; i < result.orders_tbl.length; i++) {
+                            const e = result.orders_tbl[i];
+                            $("#order_tbl tbody").append('<tr> <td>'+e.file_num+'</td> <td>'+e.closer+'</td> <td>'+e.property_addr+'</td> <td>'+moment(e.submitted_date).format('MM/DD/YYYY')+'</td> <td>'+moment(e.closed_date).format('MM/DD/YYYY')+'</td> </tr>');
+                        }
+                    }
+                });
+            });
+        });
+
         function ucwords(str)
         {
             str = str.toLowerCase().replace(/\b[a-z]/g, function(letter) {
@@ -182,6 +268,28 @@
 
             return str;
         }
+
+        function removeDataset(chart) {
+            chart.data.datasets.data = [];
+        };
+
+        function addDataset(chart, data, label, chart_name) {
+            if(chart_name == 'customers') {
+                chart.data.datasets = [{
+                    label: 'Customers',
+                    data: data,
+                    backgroundColor: 'rgb(54, 162, 235)'
+                }];
+            } else {
+                chart.data.labels = label;
+                chart.data.datasets = [{
+                    label: 'Orders',
+                    backgroundColor: 'rgb(255, 99, 132)',
+                    borderColor: 'rgb(255, 99, 132)',
+                    data: data
+                }]
+            }
+        };
 
     </script>
 @endsection

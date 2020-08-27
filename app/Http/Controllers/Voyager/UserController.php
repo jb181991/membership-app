@@ -248,7 +248,90 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
             $view = "voyager::$slug.read";
         }
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted'));
+        if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3) {
+            $orders = DB::table('orders')
+                            ->join('users', 'orders.sales_rep_id', '=', 'users.id')
+                            ->where('orders.sales_rep_id', $id)
+                            ->orWhere('users.coach_id', $id)->get();
+            $customers = DB::table('customers')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->where('customers.sales_rep_id', $id)
+                            ->orWhere('users.coach_id', $id)
+                            ->get();
+        } else if (Auth::user()->role_id == 4) {
+            $orders = DB::table('orders')
+                            ->join('users', 'orders.sales_rep_id', '=', 'users.id')
+                            ->where('orders.sales_rep_id', $id)->get();
+            $customers = DB::table('customers')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->where('customers.sales_rep_id', $id)->get();
+        }
+
+        /* reports on users view */
+        $customersLabel = [];
+        $customerData = [];
+        $customer_type = \App\Customer::selectRaw('DISTINCT(customer_type)')->get();
+
+        if(\App\User::where('id', $id)->value('role_id') == 4) {
+            foreach($customer_type as $row => $val)
+            {
+                $customerCnt = DB::table('customers')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->selectRaw('COUNT(customer_type) as cnt')
+                            ->where('customer_type', $val->customer_type)
+                            ->where('users.coach_id', $id)->value('cnt');
+                array_push($customersLabel, $val->customer_type);
+                array_push($customerData, $customerCnt == null ? 0 : $customerCnt);
+            }
+        } else if(\App\User::where('id', $id)->value('role_id') == 5) {
+            foreach($customer_type as $row => $val)
+            {
+                $customerCnt = DB::table('customers')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->selectRaw('COUNT(customer_type) as cnt')
+                            ->where('customer_type', $val->customer_type)
+                            ->where('customers.sales_rep_id', $id)->value('cnt');
+                array_push($customersLabel, $val->customer_type);
+                array_push($customerData, $customerCnt == null ? 0 : $customerCnt);
+            }
+        }
+
+        $yr_range = $this->getDatesFromRange(date('Y-m-01'), date('Y-m-d'));
+        $yrs =[];
+        $yrs_cnt = [];
+
+        if(\App\User::where('id', $id)->value('role_id') == 4) {
+            foreach($yr_range as $row) {
+                $cnt = DB::table('orders')
+                            ->join('customers', 'orders.customer_id', '=', 'customers.id')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->selectRaw('COUNT(submitted_date) as cnt')
+                            ->where('users.coach_id', $id)
+                            ->whereDate('orders.submitted_date', $row)->value('cnt');
+                array_push($yrs_cnt, $cnt);
+                array_push($yrs, $row);
+            }
+        } else if(\App\User::where('id', $id)->value('role_id') == 5) {
+            foreach($yr_range as $row) {
+                $cnt = DB::table('orders')
+                            ->join('customers', 'orders.customer_id', '=', 'customers.id')
+                            ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->selectRaw('COUNT(submitted_date) as cnt')
+                            ->where('customers.sales_rep_id', $id)
+                            ->whereDate('orders.submitted_date', $row)->value('cnt');
+                array_push($yrs_cnt, $cnt);
+                array_push($yrs, $row);
+            }
+        }
+
+        $years = $yrs;
+        $years_cnt = $yrs_cnt;
+        $customers_label = $customersLabel;
+        $customers_data = $customerData;
+        
+        $company_name = \App\User::selectRaw('DISTINCT(company)')->where('company', '!=', null)->pluck('company');
+
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted', 'orders', 'customers', 'customers_tbl', 'orders_tbl', 'years', 'years_cnt', 'customers_label', 'customers_data', 'company_name'));
     }
 
     //***************************************
@@ -436,9 +519,10 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
 
             if($request->form_type == "modal")
             {
-                return redirect()->back()->with([
-                    'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                    'alert-type' => 'success',
+                return response()->json([
+                    'data'      => $data,
+                    'message'   => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                    'alert-type'=> 'success',
                 ]);
             } else {
                 return $redirect->with([
@@ -508,6 +592,25 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
         }
 
         return redirect()->route("voyager.{$dataType->slug}.index")->with($data);
+    }
+
+    function getDatesFromRange($start, $end) { 
+      
+        // Declare an empty array 
+        $array = array(); 
+        
+        // Use strtotime function 
+        $Variable1 = strtotime($start); 
+        $Variable2 = strtotime($end); 
+        
+        // Use for loop to store dates into array 
+        // 86400 sec = 24 hrs = 60*60*24 = 1 day 
+        for ($currentDate = $Variable1; $currentDate <= $Variable2; $currentDate += (86400)) {                                   
+            $Store = date('Y-m-d', $currentDate); 
+            $array[] = $Store; 
+        } 
+
+        return $array; 
     }
 
     public function restore(Request $request, $id)
