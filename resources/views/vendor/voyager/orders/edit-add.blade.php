@@ -92,6 +92,18 @@
                             @endforeach
                                 
                             <input type="hidden" name="user_id" value="{{ Auth::user()->id }}">
+                            
+                            {{-- Custom select Customers --}}
+                            <div class="form-group col-md-6">
+                                <label for="">Customer</label>
+                                <select name="customer_id" id="customer_id" class="form-control select2">
+                                    <option value="" disabled selected>None</option>
+                                    <option value="create_new">Create New Customer</option>
+                                    @foreach ($customers as $customer)
+                                        <option value="{{ $customer->id }}" {{ isset($dataTypeContent->customer_id) && $customer->id == $dataTypeContent->customer_id ? 'selected' : '' }}>{{ $customer->first_name.' '.$customer->last_name }}</option>
+                                    @endforeach
+                                </select>
+                            </div>
 
                             {{-- Custom select Sales Rep --}}
                             @if (\Auth::user()->role_id != 5)
@@ -237,6 +249,111 @@
         </div>
     </div>
     <!-- End Create New Sales Rep Modal -->
+
+    <div class="modal fade modal-primary" id="add_new_customer_modal">
+        <div class="modal-dialog modal-lg">
+            <div class="modal-content">
+
+                <div class="modal-header">
+                    <button type="button" class="close" data-dismiss="modal"
+                            aria-hidden="true">&times;</button>
+                    <h4 class="modal-title">Create New Customer</h4>
+                </div>
+
+                <div class="modal-body">
+                    <div class="panel-body">
+                        <form class="form-edit-add" role="form" action="" id="form_add_customer" method="POST" enctype="multipart/form-data" autocomplete="off">
+
+                            @csrf
+
+                            <div class="row">
+                                <div class="col-md-12">
+                                    <div class="panel panel-bordered">
+                                        <div class="panel-body">
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="first_name">First Name</label>
+                                                    <input type="text" class="form-control" id="first_name" name="first_name" placeholder="First Name" value="" required maxlength="50">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="last_name">First Name</label>
+                                                    <input type="text" class="form-control" id="last_name" name="last_name" placeholder="Last Name" value="" required maxlength="50">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="city">City</label>
+                                                    <input type="text" class="form-control" id="city" name="city" placeholder="City" value="" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="state">State</label>
+                                                    <input type="text" class="form-control" id="state" name="state" placeholder="State" value="" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>Company</label>
+                                                    <input type="text" class="form-control" name="company" value="" placeholder="Company" required maxlength="100">
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label>E-mail</label>
+                                                    <input type="email" class="form-control" name="email" placeholder="E-mail" value="" required>
+                                                </div>
+                                            </div>
+
+                                            <div class="col-md-6">
+                                                <div class="form-group">
+                                                    <label for="customer_type">Customer Type</label>
+                                                    <select class="form-control" id="customer_type" name="customer_type" value="" required>
+                                                        <option value="NA">N/A</option>
+                                                        <option value="Real Estate Agent">Real Estate Agent</option>
+                                                        <option value="Real Estate Broker">Real Estate Broker</option>
+                                                        <option value="Lender">Lender</option>
+                                                    </select>
+                                                </div>
+                                            </div>
+
+                                            @if (\Auth::user()->role_id != 5)
+                                                <div class="form-group col-md-6">
+                                                    <label for="">Sales Rep</label>
+                                                    <select name="sales_rep_id" class="form-control select2">
+                                                        <option value="" disabled selected>None</option>
+                                                        {{-- <option value="create_new">Create New Sales Rep</option> --}}
+                                                        @foreach ($sales_reps as $sales_rep)
+                                                            <option value="{{ $sales_rep->id }}" {{ isset($dataTypeContent->sales_rep_id) && $sales_rep->id == $dataTypeContent->sales_rep_id ? 'selected' : '' }}>{{ $sales_rep->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                            @elseif (\Auth::user()->role_id == 5)
+                                                <input type="hidden" name="sales_rep_id" value="{{ \Auth::user()->id }}">
+                                            @endif
+
+                                            <input type="hidden" name="user_id" value="{{Auth::user()->id}}">
+                                            <input type="hidden" name="form_type" value="modal">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <button type="submit" class="btn btn-primary pull-right save">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- End Create New Customer Modal -->
 @stop
 
 @section('javascript')
@@ -263,10 +380,41 @@
         }
 
         $('document').ready(function () {
+            $("#customer_id").on("change", function() {
+                if($(this).val() == "create_new") {
+                    $("#add_new_customer_modal").modal('show');
+                }
+            });
+
             $("#sales_rep_id").on("change", function() {
                 if($(this).val() == "create_new") {
                     $("#add_new_rep_modal").modal('show');
                 }
+            });
+
+            $("#form_add_customer").submit(function(event){
+                event.preventDefault();
+                var values = $(this).serialize();
+                $.ajax({
+                    url: "{{ route('voyager.customers.store') }}",
+                    type: 'POST',
+                    data: values,
+                    success: function (result) {
+                        // console.log(data);
+                        var data = {
+                            id: result['data'].id,
+                            text: result['data'].first_name +" "+ result['data'].last_name,
+                        };
+
+                        var newOption = new Option(data.text, data.id, false, false);
+                        $('#customer_id').append(newOption).trigger('change');
+
+                        toastr.success(result['message']);
+
+                        $("#add_new_customer_modal").modal('hide');
+                        $("#form_add_customer").trigger("reset");
+                    }
+                });
             });
 
             $("#form_add_sales_rep").submit(function(event){

@@ -302,8 +302,10 @@ class OrderController extends \TCG\Voyager\Http\Controllers\VoyagerBaseControlle
         }
 
         $sales_reps = \App\User::where('role_id', 5)->get();
+        $coaches = \App\User::where('role_id', 4)->get();
+        $customers = \App\Customer::get();
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps', 'coaches', 'customers'));
     }
 
     // POST BR(E)AD
@@ -394,8 +396,9 @@ class OrderController extends \TCG\Voyager\Http\Controllers\VoyagerBaseControlle
 
         $sales_reps = \App\User::where('role_id', 5)->get();
         $coaches = \App\User::where('role_id', 4)->get();
+        $customers = \App\Customer::get();
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps', 'coaches'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps', 'coaches', 'customers'));
     }
 
     /**

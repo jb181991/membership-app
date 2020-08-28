@@ -313,8 +313,9 @@ class CustomerController extends \TCG\Voyager\Http\Controllers\VoyagerBaseContro
         }
 
         $sales_reps = \App\User::where('role_id', 5)->get();
+        $coaches = \App\User::where('role_id', 4)->get();
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'sales_reps', 'coaches'));
     }
 
     // POST BR(E)AD
@@ -438,10 +439,19 @@ class CustomerController extends \TCG\Voyager\Http\Controllers\VoyagerBaseContro
                 $redirect = redirect()->back();
             }
 
-            return $redirect->with([
-                'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
-                'alert-type' => 'success',
-            ]);
+            if($request->form_type == "modal")
+            {
+                return response()->json([
+                    'data'      => $data,
+                    'message'   => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                    'alert-type'=> 'success',
+                ]);
+            } else {
+                return $redirect->with([
+                    'message'    => __('voyager::generic.successfully_added_new')." {$dataType->getTranslatedAttribute('display_name_singular')}",
+                    'alert-type' => 'success',
+                ]);
+            }
         } else {
             return response()->json(['success' => true, 'data' => $data]);
         }

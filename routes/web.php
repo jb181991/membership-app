@@ -30,5 +30,3 @@ Route::group(['prefix' => 'admin'], function () {
     /* Import */
     Route::post('/import', 'Voyager\ImportController@import');
 });
-
-// Route::get('/admin', 'Voyager\ReportsController@getDashboard');

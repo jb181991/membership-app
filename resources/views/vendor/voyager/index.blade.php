@@ -233,6 +233,7 @@
                     type: 'POST',
                     data: {'year_range': $('input[name="year_range"]').val(), 'company': $('#company').val(),'_token': $('meta[name="csrf-token"]').attr('content')},
                     success: function (result){
+                        console.log(result);
                         $("#customer_tbl tbody").html("");
                         $("#order_tbl tbody").html("");
 
@@ -241,9 +242,14 @@
                         removeDataset(cutomersChart);
                         addDataset(cutomersChart, result.customers_data, result.customers_label, 'customers');
                         cutomersChart.update();
-                        for (let i = 0; i < result.customers_tbl.length; i++) {
-                            const e = result.customers_tbl[i];
-                            $("#customer_tbl tbody").append('<tr> <td>'+e.customer_name+'</td> <td>'+e.email+'</td> <td>'+e.name+'</td> <td>'+e.customer_type+'</td> </tr>');
+                        var customers_tbl = result.customers_tbl;
+                        var orders_tbl = result.orders_tbl;
+                        // console.log(result.data);
+                        if(customers_tbl != undefined) {
+                            for (let i = 0; i < customers_tbl.length; i++) {
+                                const e = customers_tbl[i];
+                                $("#customer_tbl tbody").append('<tr> <td>'+e.customer_name+'</td> <td>'+e.email+'</td> <td>'+e.name+'</td> <td>'+e.customer_type+'</td> </tr>');
+                            }
                         }
 
                         // Order Report
@@ -251,9 +257,11 @@
                         removeDataset(orderChart);
                         addDataset(orderChart, result.years_cnt, result.years, 'orders');
                         orderChart.update();
-                        for (let i = 0; i < result.orders_tbl.length; i++) {
-                            const e = result.orders_tbl[i];
-                            $("#order_tbl tbody").append('<tr> <td>'+e.file_num+'</td> <td>'+e.closer+'</td> <td>'+e.property_addr+'</td> <td>'+moment(e.submitted_date).format('MM/DD/YYYY')+'</td> <td>'+moment(e.closed_date).format('MM/DD/YYYY')+'</td> </tr>');
+                        if(orders_tbl != undefined) {
+                            for (let i = 0; i < orders_tbl.length; i++) {
+                                const e = orders_tbl[i];
+                                $("#order_tbl tbody").append('<tr> <td>'+e.file_num+'</td> <td>'+e.closer+'</td> <td>'+e.property_addr+'</td> <td>'+moment(e.submitted_date).format('MM/DD/YYYY')+'</td> <td>'+moment(e.closed_date).format('MM/DD/YYYY')+'</td> </tr>');
+                            }
                         }
                     }
                 });
@@ -274,6 +282,7 @@
         };
 
         function addDataset(chart, data, label, chart_name) {
+            var data = (data == undefined || data == []) ? 0 : data;
             if(chart_name == 'customers') {
                 chart.data.datasets = [{
                     label: 'Customers',

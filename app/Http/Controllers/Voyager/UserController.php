@@ -331,7 +331,7 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
         
         $company_name = \App\User::selectRaw('DISTINCT(company)')->where('company', '!=', null)->pluck('company');
 
-        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted', 'orders', 'customers', 'customers_tbl', 'orders_tbl', 'years', 'years_cnt', 'customers_label', 'customers_data', 'company_name'));
+        return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted', 'orders', 'customers', 'years', 'years_cnt', 'customers_label', 'customers_data', 'company_name'));
     }
 
     //***************************************
