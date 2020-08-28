@@ -106,7 +106,17 @@
                                     </select>
                                 </div>
                             @elseif (\Auth::user()->role_id == 5)
-                                <input type="hidden" name="sales_rep_id" value="{{ \Auth::user()->id }}">
+                                {{-- <input type="hidden" name="sales_rep_id" value="{{ \Auth::user()->id }}"> --}}
+                                <div class="form-group col-md-6">
+                                    <label for="">Sales Rep</label>
+                                    <select name="sales_rep_id" class="form-control select2">
+                                        <option value="" disabled selected>None</option>
+                                        {{-- <option value="create_new">Create New Sales Rep</option> --}}
+                                        @foreach ($sales_reps as $sales_rep)
+                                            <option value="{{ $sales_rep->id }}" {{ $sales_rep->id == \Auth::user()->id ? 'selected' : '' }}>{{ $sales_rep->name }}</option>
+                                        @endforeach
+                                    </select>
+                                </div>
                             @endif
 
                         </div><!-- panel-body -->
@@ -207,7 +217,16 @@
                                                     </select>
                                                 </div>
                                             @else
-                                                <input type="hidden" name="coach_id" value="{{ Auth::user()->id }}">
+                                                <div class="form-group">
+                                                    <label for="">Coach</label>
+                                                    <select name="coach_id" id="coach_id" class="form-group select2">
+                                                        <option value="" disabled selected>Select Coach</option>
+                                                        @foreach ($coaches as $coach)
+                                                            <option value="{{ $coach->id }}" {{ \Auth::user()->id == $coach->id ? 'selected' : ''}}>{{ $coach->name }}</option>
+                                                        @endforeach
+                                                    </select>
+                                                </div>
+                                                {{-- <input type="hidden" name="coach_id" value="{{ Auth::user()->id }}"> --}}
                                             @endif
 
                                             <input type="hidden" name="role_id" value="5">
