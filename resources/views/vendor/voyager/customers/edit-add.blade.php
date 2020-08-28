@@ -286,8 +286,7 @@
                         };
 
                         var newOption = new Option(data.text, data.id, false, false);
-                        $('#sales_rep_id').append(newOption).trigger('change');
-
+                        $('#sales_rep_id').append(newOption).val(data.id).trigger('change');
                         $("#add_new_rep_modal").modal('hide');
                         toastr.success(result['message']);
                     }

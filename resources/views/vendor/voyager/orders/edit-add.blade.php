@@ -407,7 +407,7 @@
                         };
 
                         var newOption = new Option(data.text, data.id, false, false);
-                        $('#customer_id').append(newOption).trigger('change');
+                        $('#customer_id').append(newOption).val(data.id).trigger('change');
 
                         toastr.success(result['message']);
 
@@ -432,7 +432,7 @@
                         };
 
                         var newOption = new Option(data.text, data.id, false, false);
-                        $('#sales_rep_id').append(newOption).trigger('change');
+                        $('#sales_rep_id').append(newOption).val(data.id).trigger('change');
 
                         toastr.success(result['message']);
 
