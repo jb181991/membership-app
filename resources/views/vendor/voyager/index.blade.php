@@ -124,7 +124,7 @@
                                         </table>
                                     @else
                                         <div class="text-center">
-                                            <p>No customers for this Sales Reps.<br>Click <a href="{{route('voyager.customers.create')}}"><strong>here</strong></a> add new Customer.</p>
+                                            <p>No customers for this Sales Rep.<br>Click <a href="{{route('voyager.customers.create')}}"><strong>here</strong></a> add new Customer.</p>
                                         </div>
                                     @endif
                                 </div>
