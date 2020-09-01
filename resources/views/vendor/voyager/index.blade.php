@@ -72,11 +72,6 @@
                                                             @endphp
                                                             @if (count($reps) > 0)
                                                                 <table class="table table-striped table-bordered" width="100%">
-                                                                    <thead class="thead-dark">
-                                                                        <tr>
-                                                                            <th class="text-center">Sales Rep</th>
-                                                                        </tr>
-                                                                    </thead>
                                                                     <tbody>
                                                                         @foreach ($reps as $rep)
                                                                             <tr>
