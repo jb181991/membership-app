@@ -98,34 +98,39 @@
             </div>
             <div class="col-md-3 {{ Auth::user()->role_id == 2 || Auth::user()->role_id == 4 ? '' : 'hide' }}">
                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
-                    <div class="panel panel-primary">
-                        <div class="panel-heading" role="tab" id="headingOne{{Auth::user()->company}}">
+                    @foreach ($sales_reps as $item)
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" role="tab" id="headingOne-{{$item->id}}">
                             <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{Auth::user()->company}}" aria-expanded="true" aria-controls="collapse{{Auth::user()->company}}">
-                                    {{ ucwords(Auth::user()->company) }}
+                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{$item->id}}" aria-expanded="true" aria-controls="collapse-{{$item->id}}">
+                                    {{ ucwords($item->name) }}
                                 </a>
                             </h4>
-                        </div>
-                        <div id="collapse{{Auth::user()->company}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne{{Auth::user()->company}}">
-                            <div class="panel-body">
-                                @if (count($sales_reps) > 0)
-                                    <table class="table table-striped table-bordered" width="100%">
-                                        <tbody>
-                                            @foreach ($sales_reps as $rep)
-                                                <tr>
-                                                    <td><a href="{{url('/admin/users/'.$rep->id)}}">{{$rep->name}}</a></td>
-                                                </tr>
-                                            @endforeach
-                                        </tbody>
-                                    </table>
-                                @else
-                                    <div class="text-center">
-                                        <p>No Sales Reps for this Coach/Client.<br>Click <a href="{{route('voyager.users.create')}}"><strong>here</strong></a> add new Sales Rep.</p>
-                                    </div>
-                                @endif
+                            </div>
+                            <div id="collapse-{{$item->id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{$item->id}}">
+                                <div class="panel-body">
+                                    @php
+                                        $customers = \App\Customer::where(['sales_rep_id' => $item->id])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
+                                    @endphp
+                                    @if (count($customers) > 0)
+                                        <table class="table table-striped table-bordered" width="100%">
+                                            <tbody>
+                                                @foreach ($customers as $customer)
+                                                    <tr>
+                                                        <td><a href="{{url('/admin/customers/'.$customer->id)}}">{{$customer->first_name.' '.$customer->last_name}}</a></td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                    @else
+                                        <div class="text-center">
+                                            <p>No customers for this Sales Reps.<br>Click <a href="{{route('voyager.customers.create')}}"><strong>here</strong></a> add new Customer.</p>
+                                        </div>
+                                    @endif
+                                </div>
                             </div>
                         </div>
-                    </div>
+                    @endforeach
                 </div>
             </div>
             <div class="{{ Auth::user()->role_id != 5 ? 'col-md-9' : '' }}">
