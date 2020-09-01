@@ -57,7 +57,7 @@
                                             <div class="accordion" id="accordionExample">
                                                 <div class="card" style="box-shadow: none!important;">
                                                     <div class="card-header" id="heading-{{$coach->id}}">
-                                                        <h2 class="">
+                                                        <h2 style="margin:0px!important;">
                                                             <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{$coach->id}}" aria-expanded="true" aria-controls="collapse-{{$coach->id}}">
                                                             {{ $coach->name }}
                                                             </button>
@@ -101,11 +101,11 @@
                     @foreach ($sales_reps as $item)
                         <div class="panel panel-primary">
                             <div class="panel-heading" role="tab" id="headingOne-{{$item->id}}">
-                            <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{$item->id}}" aria-expanded="true" aria-controls="collapse-{{$item->id}}">
-                                    {{ ucwords($item->name) }}
-                                </a>
-                            </h4>
+                                <h4 class="panel-title" style="margin:0px!important;">
+                                    <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{$item->id}}" aria-expanded="true" aria-controls="collapse-{{$item->id}}">
+                                        {{ ucwords($item->name) }}
+                                    </a>
+                                </h4>
                             </div>
                             <div id="collapse-{{$item->id}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{$item->id}}">
                                 <div class="panel-body">
