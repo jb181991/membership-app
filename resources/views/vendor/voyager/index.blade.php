@@ -1,6 +1,30 @@
 @extends('voyager::master')
 
 @section('content')
+    <style>
+        .-title>a, .-title>a:active{
+            display:block;
+            padding:15px;
+        color:#555;
+        font-size:16px;
+        font-weight:bold;
+            text-transform:uppercase;
+            letter-spacing:1px;
+        word-spacing:3px;
+            text-decoration:none;
+        }
+        .panel-heading  a:before {
+        font-family: 'Glyphicons Halflings';
+        content: "\e114";
+        float: right;
+        transition: all 0.5s;
+        }
+        .panel-heading.active a:before {
+            -webkit-transform: rotate(180deg);
+            -moz-transform: rotate(180deg);
+            transform: rotate(180deg);
+        } 
+    </style>
     <div class="container-fluid">
         <h1 class="page-title">
             <i class="voyager-pie-graph"></i> Reports
@@ -8,9 +32,80 @@
     </div>
     <div class="container-fluid">
         <div class="page-content">
-            <div class="row">
+            <div class="col-md-3 {{ Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? '' : 'hide' }}">
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    @foreach ($company_name as $item)
+                        <div class="panel panel-primary">
+                            <div class="panel-heading" role="tab" id="headingOne-{{$item}}">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{$item}}" aria-expanded="true" aria-controls="collapse-{{$item}}">
+                                    {{ ucwords($item) }}
+                                </a>
+                            </h4>
+                            </div>
+                            <div id="collapse-{{$item}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{$item}}">
+                            <div class="panel-body">
+                                {{-- <ul> --}}
+                                    @php
+                                        $coaches = \App\User::where(['company' => $item, 'role_id' => 4])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
+                                    @endphp
+                                    @if (count($coaches) == 0)
+                                        <div class="text-center">
+                                            <p>No Clients/Coaches for this Organization.<br>Click <a href="{{route('voyager.users.create')}}"><strong>here</strong></a> add new Coach.</p>
+                                        </div>
+                                    @else
+                                        @foreach ($coaches as $coach)
+                                            <div class="accordion" id="accordionExample">
+                                                <div class="card" style="box-shadow: none!important;">
+                                                    <div class="card-header" id="heading-{{$coach->id}}">
+                                                        <h2 class="">
+                                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{$coach->id}}" aria-expanded="true" aria-controls="collapse-{{$coach->id}}">
+                                                            {{ $coach->name }}
+                                                            </button>
+                                                        </h2>
+                                                    </div>
+
+                                                    <div id="collapse-{{$coach->id}}" class="collapse" aria-labelledby="heading-{{$coach->id}}" data-parent="#accordionExample">
+                                                        <div class="card-body">
+                                                            @php
+                                                                $reps = \App\User::where(['company' => $item, 'coach_id' => $coach->id,'role_id' => 5])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
+                                                            @endphp
+                                                            @if (count($reps) > 0)
+                                                                <table class="table table-striped table-bordered" width="100%">
+                                                                    <thead class="thead-dark">
+                                                                        <tr>
+                                                                            <th class="text-center">Sales Rep</th>
+                                                                        </tr>
+                                                                    </thead>
+                                                                    <tbody>
+                                                                        @foreach ($reps as $rep)
+                                                                            <tr>
+                                                                                <td><a href="{{url('/admin/users/'.$rep->id)}}">{{$rep->name}}</a></td>
+                                                                            </tr>
+                                                                        @endforeach
+                                                                    </tbody>
+                                                                </table>
+                                                            @else
+                                                                <div class="text-center">
+                                                                    <p>No Sales Reps for this Coach.<br>Click <a href="{{route('voyager.users.create')}}"><strong>here</strong></a> add new Sales Rep.</p>
+                                                                </div>
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        @endforeach
+                                    @endif
+                                {{-- </ul> --}}
+                            </div>
+                            </div>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+            <div class="{{ Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? 'col-md-9' : '' }}">
                 <div class="col-md-12">
-                    <div class="panel widget">
+                    <div class="panel widget" style="margin-top:0px!important;">
                         <div class="panel-content">
                             <div class="panel-body">
                                 <div class="form-group col-md-6">
@@ -199,6 +294,14 @@
         });
 
         $(document).ready(function(){
+
+            $('.panel-collapse').on('show.bs.collapse', function () {
+                $(this).siblings('.panel-heading').addClass('active');
+            });
+
+            $('.panel-collapse').on('hide.bs.collapse', function () {
+                $(this).siblings('.panel-heading').removeClass('active');
+            });
 
             var start = moment().subtract(29, 'days');
             var end = moment();
