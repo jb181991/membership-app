@@ -138,6 +138,7 @@ class VoyagerController extends BaseVoyagerController
         $data['customers_data'] = $customerData;
         
         $data['company_name'] = \App\User::selectRaw('DISTINCT(company)')->where('company', '!=', null)->pluck('company');
+        $data['sales_reps'] = \App\User::where('coach_id', Auth::user()->id)->get();
 
         return view('vendor.voyager.index', $data);
     }

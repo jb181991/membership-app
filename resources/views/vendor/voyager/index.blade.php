@@ -32,7 +32,7 @@
     </div>
     <div class="container-fluid">
         <div class="page-content">
-            <div class="col-md-3 {{ Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? '' : 'hide' }}">
+            <div class="col-md-3 {{ Auth::user()->role_id == 1 || Auth::user()->role_id == 3 ? '' : 'hide' }}">
                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                     @foreach ($company_name as $item)
                         <div class="panel panel-primary">
@@ -44,8 +44,7 @@
                             </h4>
                             </div>
                             <div id="collapse-{{$item}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{$item}}">
-                            <div class="panel-body">
-                                {{-- <ul> --}}
+                                <div class="panel-body">
                                     @php
                                         $coaches = \App\User::where(['company' => $item])->whereIn('role_id', array(2,4))->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
                                     @endphp
@@ -91,14 +90,45 @@
                                             </div>
                                         @endforeach
                                     @endif
-                                {{-- </ul> --}}
-                            </div>
+                                </div>
                             </div>
                         </div>
                     @endforeach
                 </div>
             </div>
-            <div class="{{ Auth::user()->role_id == 1 || Auth::user()->role_id == 2 ? 'col-md-9' : '' }}">
+            <div class="col-md-3 {{ Auth::user()->role_id == 2 || Auth::user()->role_id == 4 ? '' : 'hide' }}">
+                <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
+                    <div class="panel panel-primary">
+                        <div class="panel-heading" role="tab" id="headingOne{{Auth::user()->company}}">
+                            <h4 class="panel-title">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse{{Auth::user()->company}}" aria-expanded="true" aria-controls="collapse{{Auth::user()->company}}">
+                                    {{ ucwords(Auth::user()->company) }}
+                                </a>
+                            </h4>
+                        </div>
+                        <div id="collapse{{Auth::user()->company}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne{{Auth::user()->company}}">
+                            <div class="panel-body">
+                                @if (count($sales_reps) > 0)
+                                    <table class="table table-striped table-bordered" width="100%">
+                                        <tbody>
+                                            @foreach ($sales_reps as $rep)
+                                                <tr>
+                                                    <td><a href="{{url('/admin/users/'.$rep->id)}}">{{$rep->name}}</a></td>
+                                                </tr>
+                                            @endforeach
+                                        </tbody>
+                                    </table>
+                                @else
+                                    <div class="text-center">
+                                        <p>No Sales Reps for this Coach/Client.<br>Click <a href="{{route('voyager.users.create')}}"><strong>here</strong></a> add new Sales Rep.</p>
+                                    </div>
+                                @endif
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="{{ Auth::user()->role_id != 5 ? 'col-md-9' : '' }}">
                 <div class="col-md-12">
                     <div class="panel widget" style="margin-top:0px!important;">
                         <div class="panel-content">
