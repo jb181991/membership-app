@@ -66,7 +66,7 @@
                                                     </div>
 
                                                     <div id="collapse-{{$coach->id}}" class="collapse" aria-labelledby="heading-{{$coach->id}}" data-parent="#accordionExample">
-                                                        <div class="card-body">
+                                                        <div class="card-body" style="padding: 0px!important;">
                                                             @php
                                                                 $reps = \App\User::where(['company' => $item, 'coach_id' => $coach->id,'role_id' => 5])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
                                                             @endphp
