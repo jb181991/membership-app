@@ -47,7 +47,7 @@
                             <div class="panel-body">
                                 {{-- <ul> --}}
                                     @php
-                                        $coaches = \App\User::where(['company' => $item, 'role_id' => 4, 'role_id' => 2])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
+                                        $coaches = \App\User::where(['company' => $item])->whereIn('role_id', array(2,4))->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
                                     @endphp
                                     @if (count($coaches) == 0)
                                         <div class="text-center">
