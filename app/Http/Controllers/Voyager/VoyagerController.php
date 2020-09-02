@@ -109,7 +109,7 @@ class VoyagerController extends BaseVoyagerController
                             ->join('customers', 'orders.customer_id', '=', 'customers.id')
                             ->join('users', 'orders.sales_rep_id', '=', 'users.id')
                             ->where('orders.sales_rep_id', Auth::user()->id)
-                            ->whereDate('orders.created_at', $row)
+                            ->whereDate('orders.submitted_date', $row)
                             ->count();
 
                 array_push($yrs_cnt, $cnt);
@@ -128,7 +128,7 @@ class VoyagerController extends BaseVoyagerController
                             ->join('users', 'customers.sales_rep_id', '=', 'users.id')
                             ->select('*')
                             ->where('orders.sales_rep_id', Auth::user()->id)
-                            ->orderBy('orders.created_at', 'DESC')
+                            ->orderBy('orders.submitted_date', 'DESC')
                             ->get();
         }
 
@@ -139,6 +139,8 @@ class VoyagerController extends BaseVoyagerController
         
         $data['company_name'] = \App\User::selectRaw('DISTINCT(company)')->where('company', '!=', null)->pluck('company');
         $data['sales_reps'] = \App\User::where('coach_id', Auth::user()->id)->get();
+        // $sales_reps = \App\User::where('role_id', 5)->get();
+        $data['new_coaches'] = \App\User::where('role_id', 4)->get();
 
         return view('vendor.voyager.index', $data);
     }

@@ -109,9 +109,9 @@
                                 {{-- <input type="hidden" name="sales_rep_id" value="{{ \Auth::user()->id }}"> --}}
                                 <div class="form-group col-md-6">
                                     <label for="">Sales Rep</label>
-                                    <select name="sales_rep_id" class="form-control select2">
+                                    <select name="sales_rep_id" class="form-control select2" disabled>
                                         <option value="" disabled selected>None</option>
-                                        {{-- <option value="create_new">Create New Sales Rep</option> --}}
+                                        <option value="create_new">Create New Sales Rep</option>
                                         @foreach ($sales_reps as $sales_rep)
                                             <option value="{{ $sales_rep->id }}" {{ $sales_rep->id == \Auth::user()->id ? 'selected' : '' }}>{{ $sales_rep->name }}</option>
                                         @endforeach
