@@ -255,6 +255,7 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
                             ->orWhere('users.coach_id', $id)->get();
             $customers = DB::table('customers')
                             ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->select('customers.*')
                             ->where('customers.sales_rep_id', $id)
                             ->orWhere('users.coach_id', $id)
                             ->get();
@@ -264,6 +265,7 @@ class UserController extends \TCG\Voyager\Http\Controllers\VoyagerBaseController
                             ->where('orders.sales_rep_id', $id)->get();
             $customers = DB::table('customers')
                             ->join('users', 'customers.sales_rep_id', '=', 'users.id')
+                            ->select('customers.*')
                             ->where('customers.sales_rep_id', $id)->get();
         }
 

@@ -36,14 +36,14 @@
                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                     @foreach ($company_name as $item)
                         <div class="panel panel-primary">
-                            <div class="panel-heading" role="tab" id="headingOne-{{$item}}">
+                            <div class="panel-heading" role="tab" id="headingOne-{{str_replace(' ', '_', strtolower($item))}}">
                             <h4 class="panel-title">
-                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{$item}}" aria-expanded="true" aria-controls="collapse-{{$item}}">
+                                <a role="button" data-toggle="collapse" data-parent="#accordion" href="#collapse-{{str_replace(' ', '_', strtolower($item))}}" aria-expanded="true" aria-controls="collapse-{{str_replace(' ', '_', strtolower($item))}}">
                                     {{ ucwords($item) }}
                                 </a>
                             </h4>
                             </div>
-                            <div id="collapse-{{$item}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{$item}}">
+                            <div id="collapse-{{str_replace(' ', '_', strtolower($item))}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{str_replace(' ', '_', strtolower($item))}}">
                                 <div class="panel-body">
                                     @php
                                         $coaches = \App\User::where(['company' => $item])->whereIn('role_id', array(2,4))->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do

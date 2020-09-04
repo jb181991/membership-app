@@ -254,11 +254,11 @@
                                             </td>
                                         @endforeach
                                         @php
-                                            $sales_rep = \App\User::where('id', $data->sales_rep_id)->pluck('name');
-                                            $updated_by = isset($data->user_id) ? \App\User::where('id', $data->user_id)->pluck('name') : '-';
+                                            $sales_rep = \App\User::where('id', $data->sales_rep_id)->value('name');
+                                            $updated_by = isset($data->user_id) ? \App\User::where('id', $data->user_id)->value('name') : '-';
                                         @endphp
-                                        <td>{{ $sales_rep[0] }}</td>
-                                        <td>{{ $updated_by[0] }}</td>
+                                        <td>{{ $sales_rep }}</td>
+                                        <td>{{ $updated_by }}</td>
                                         <td class="no-sort no-click bread-actions">
                                             @foreach($actions as $action)
                                                 @if (!method_exists($action, 'massAction'))

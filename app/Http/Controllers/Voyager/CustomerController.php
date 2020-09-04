@@ -243,14 +243,20 @@ class CustomerController extends \TCG\Voyager\Http\Controllers\VoyagerBaseContro
         }
 
         if (Auth::user()->role_id == 1 || Auth::user()->role_id == 2 || Auth::user()->role_id == 3) {
-            $orders = \App\Order::where('id', $id)->get();
+            $orders = \App\Order::where('customer_id', $id)->get();
         } elseif (Auth::user()->role_id == 4) {
             $orders = DB::table('orders')
                         ->join('users', 'orders.sales_rep_id', '=', 'users.id')
+                        ->join('customers', 'orders.customer_id', '=', 'customers.id')
                         ->where('users.coach_id', Auth::user()->id)
+                        ->where('orders.customer_id', $id)
                         ->get();
         } else {
-           $orders = \App\Order::where('sales_rep_id', $id)->get();
+           $orders = DB::table('orders')
+                        ->join('users', 'orders.sales_rep_id', '=', 'users.id')
+                        ->join('customers', 'orders.customer_id', '=', 'customers.id')
+                        ->where('orders.sales_rep_id', $id)
+                        ->orWhere('orders.customer_id', $id)->get();
         }
 
         return Voyager::view($view, compact('dataType', 'dataTypeContent', 'isModelTranslatable', 'isSoftDeleted', 'orders'));
