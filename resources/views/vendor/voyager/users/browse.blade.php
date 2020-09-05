@@ -253,9 +253,9 @@
                                             </td>
                                         @endforeach
                                         @php
-                                            $coach = isset($data->coach_id) ? \App\User::where('id', $data->coach_id)->pluck('name') : '-';
+                                            $coach = isset($data->coach_id) ? \App\User::where('id', $data->coach_id)->value('name') : '-';
                                         @endphp
-                                        <td>{{ $coach[0] }}</td>
+                                        <td>{{ $coach }}</td>
                                         <td class="no-sort no-click bread-actions">
                                             @foreach($actions as $action)
                                                 @if (!method_exists($action, 'massAction'))
