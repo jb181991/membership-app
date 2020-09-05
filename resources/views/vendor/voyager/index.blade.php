@@ -46,50 +46,23 @@
                             <div id="collapse-{{str_replace(' ', '_', strtolower($item))}}" class="panel-collapse collapse" role="tabpanel" aria-labelledby="headingOne-{{str_replace(' ', '_', strtolower($item))}}">
                                 <div class="panel-body">
                                     @php
-                                        $coaches = \App\User::where(['company' => $item])->whereIn('role_id', array(2,4))->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
+                                        $reps = \App\User::where(['company' => $item, 'role_id' => 5])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
                                     @endphp
-                                    @if (count($coaches) == 0)
-                                        <div class="text-center">
-                                            <p>No Clients/Coaches for this Organization.<br>Click <a href="{{route('voyager.users.create')}}"><strong>here</strong></a> add new Coach.</p>
-                                        </div>
+                                    @if (count($reps) > 0)
+                                        <table class="table table-striped table-bordered" width="100%" id="reps-{{str_replace(' ', '_', strtolower($item))}}">
+                                            <tbody>
+                                                @foreach ($reps as $rep)
+                                                    <tr>
+                                                        <td><a href="{{url('/admin/users/'.$rep->id)}}">{{ucwords($rep->name)}}</a></td>
+                                                    </tr>
+                                                @endforeach
+                                            </tbody>
+                                        </table>
+                                        <p>Click <a onclick="addNew('sales_rep', '{{$item}}')" href="javascript:void(0);"><strong>here</strong></a> add new Sales Rep.</p>
                                     @else
-                                        @foreach ($coaches as $coach)
-                                            <div class="accordion" id="accordionExample">
-                                                <div class="card" style="box-shadow: none!important;">
-                                                    <div class="card-header" id="heading-{{$coach->id}}">
-                                                        <h2 style="margin:0px!important;">
-                                                            <button class="btn btn-link" type="button" data-toggle="collapse" data-target="#collapse-{{$coach->id}}" aria-expanded="true" aria-controls="collapse-{{$coach->id}}">
-                                                            {{ $coach->name }}
-                                                            </button>
-                                                        </h2>
-                                                    </div>
-
-                                                    <div id="collapse-{{$coach->id}}" class="collapse" aria-labelledby="heading-{{$coach->id}}" data-parent="#accordionExample">
-                                                        <div class="card-body" style="padding: 0px!important;">
-                                                            @php
-                                                                $reps = \App\User::where(['company' => $item, 'coach_id' => $coach->id,'role_id' => 5])->get(); // as much as I want to put this on Model or create a relationship for this, it takes time hahaha sorry next time will do
-                                                            @endphp
-                                                            @if (count($reps) > 0)
-                                                                <table class="table table-striped table-bordered" width="100%" id="reps-{{$coach->id}}">
-                                                                    <tbody>
-                                                                        @foreach ($reps as $rep)
-                                                                            <tr>
-                                                                                <td><a href="{{url('/admin/users/'.$rep->id)}}">{{$rep->name}}</a></td>
-                                                                            </tr>
-                                                                        @endforeach
-                                                                    </tbody>
-                                                                </table>
-                                                                <p>Click <a onclick="addNew({{$coach->id}}, 'sales_rep', '{{$item}}')" href="javascript:void(0);"><strong>here</strong></a> add new Sales Rep.</p>
-                                                            @else
-                                                                <div class="text-center">
-                                                                    <p>No Sales Reps for this Coach/Client.<br>Click <a onclick="addNew({{$coach->id}}, 'sales_rep', '{{$item}}')" href="javascript:void(0);"><strong>here</strong></a> add new Sales Rep.</p>
-                                                                </div>
-                                                            @endif
-                                                        </div>
-                                                    </div>
-                                                </div>
-                                            </div>
-                                        @endforeach
+                                        <div class="text-center">
+                                            <p>No Sales Reps for this Company.<br>Click <a onclick="addNew('sales_rep', '{{$item}}')" href="javascript:void(0);"><strong>here</strong></a> add new Sales Rep.</p>
+                                        </div>
                                     @endif
                                 </div>
                             </div>
@@ -97,7 +70,7 @@
                     @endforeach
                 </div>
             </div>
-            <div class="col-md-3 {{ Auth::user()->role_id == 4 ? '' : 'hide' }}" style="overflow-y: auto;height:600px;">
+            {{-- <div class="col-md-3 {{ Auth::user()->role_id == 4 ? '' : 'hide' }}" style="overflow-y: auto;height:600px;">
                 <div class="panel-group" id="accordion" role="tablist" aria-multiselectable="true">
                     @foreach ($sales_reps as $item)
                         <div class="panel panel-primary">
@@ -134,7 +107,7 @@
                         </div>
                     @endforeach
                 </div>
-            </div>
+            </div> --}}
             <div class="{{ Auth::user()->role_id != 5 ? 'col-md-9' : '' }}">
                 <div class="col-md-12">
                     <div class="panel widget" style="margin-top:0px!important;">
@@ -518,11 +491,11 @@
             }
         });
 
-        function addNew(id, type, company) {
+        function addNew(type, company) {
             console.log(company);
             if (type == 'sales_rep') {
                 $("#add_new_rep_modal").modal('show');
-                $('#coach_id').val(id).trigger('change');
+                // $('#coach_id').val(id).trigger('change');
                 $('#company_name').val(company);
             } else {
                 $("#add_new_customer_modal").modal('show');
